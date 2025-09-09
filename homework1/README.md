@@ -8,4 +8,7 @@
 * Note: this code was developed using pycharm but was tested for compatibility with VS code 
 
 # Github link
-* TODO: enter 
+* https://github.com/mgaffney-mcw/EECE_6840_Neural_Networks/tree/main/homework1
+
+# Instructions
+* Run EECE_6840_homework_1.py normally. No special instructions or inputs 
