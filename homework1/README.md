@@ -11,4 +11,6 @@
 * https://github.com/mgaffney-mcw/EECE_6840_Neural_Networks/tree/main/homework1
 
 # Instructions
-* Run EECE_6840_homework_1.py normally. No special instructions or inputs 
+* Run EECE_6840_homework_1.py normally. 
+* No special instructions or inputs.
+* If desired you can remove the seed (random state) in make_blobs to randomize the test input
