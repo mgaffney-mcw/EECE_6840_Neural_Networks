@@ -1,6 +1,6 @@
-# EECE 6840 Homework 1
+# EECE 6840 Homework 3
 * created by: Mina Gaffney
-* submitted: on 9/9/2025
+* submitted: on 9/23/2025
 
 # Environment info
 * This code was written using python 3.12 within a virtual environment
@@ -8,9 +8,9 @@
 * Note: this code was developed using pycharm but was tested for compatibility with VS code 
 
 # Github link
-* https://github.com/mgaffney-mcw/EECE_6840_Neural_Networks/tree/main/homework1
+* https://github.com/mgaffney-mcw/EECE_6840_Neural_Networks/tree/main/homework3
 
 # Instructions
-* Run EECE_6840_homework_1.py normally. 
+* Run EECE_6840_homework_3.py normally. 
 * No special instructions or inputs.
 * If desired you can remove the seed (random state) in make_blobs to randomize the test input
