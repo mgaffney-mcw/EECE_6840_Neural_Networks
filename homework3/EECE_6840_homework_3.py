@@ -8,6 +8,14 @@
 # Plot loss, accuracy, and gradient norms across layers.
 # Comment on evidence of vanishing/exploding gradients.
 
+# importing things
+import tensorflow as tf
+
+# loading fashion_mnist dataset from keras.io
+f_mnist = tf.keras.datasets.fashion_mnist
+(x_train, y_train), (x_test, y_test) = f_mnist.load_data()
+
+
 
 # Activation Function Experiments:
 # Repeat training with ReLU, LeakyReLU, ELU, and GELU.
