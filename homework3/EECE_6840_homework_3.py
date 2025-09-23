@@ -46,6 +46,52 @@ test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
 
 print('\nTest accuracy:', test_acc)
 
+# 2. Use tf.GradientTape and 3. Calculate gradients
+gradient_norms = []
+layer_names = [layer.name for layer in model.layers if layer.trainable_weights]
+
+with tf.GradientTape() as tape:
+    predictions = model(train_data)
+    loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+
+# Get gradients for all trainable weights
+trainable_weights = [weight for layer in model.layers for weight in layer.trainable_weights]
+grads = tape.gradient(loss, trainable_weights)
+
+# 4. Calculate gradient norms for each layer
+grad_idx = 0
+for layer in model.layers:
+    if layer.trainable_weights:
+        layer_grads = []
+        for weight in layer.trainable_weights:
+            layer_grads.append(grads[grad_idx])
+            grad_idx += 1
+        # Compute L2 norm for the layer's gradients
+        # Flatten and concatenate all gradients for a layer before computing the norm
+        flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+        if tf.size(flat_grads) > 0:
+            norm = tf.norm(flat_grads)
+            gradient_norms.append(norm.numpy())
+        else:
+            gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+
+# 5. Plot the norms
+plt.figure(figsize=(10, 6))
+plt.bar(layer_names, gradient_norms)
+plt.xlabel("Layer")
+plt.ylabel("Gradient Norm (L2)")
+plt.title("Gradient Norms Across Layers")
+plt.xticks(rotation=45, ha="right")
+plt.tight_layout()
+plt.draw()
+
+plt.figure(figsize=(10, 6))
+plt.plot(gradient_norms)
+plt.title('Gradient Norm')
+plt.ylabel('Gradient Norm')
+plt.xlabel('Layer')
+plt.draw()
+
 # Plot training & validation accuracy values
 plt.figure(figsize=(12, 6))
 plt.subplot(1, 2, 1)
