@@ -509,21 +509,130 @@ print('Dataset Loaded')
 # Compare convergence speed and final accuracy with/without these modifications.
 
 
+
+###########################################################################
+
 # Initialization and Optimizers:
 # Experiment with Xavier vs. He initialization.
 # Train with SGD, Adam, and AdamW.
 # Report quantitative differences in convergence and test accuracy.
 
-# Leaky relu
+# Report quantitative differences in convergence and test accuracy.
+
+# The combination of optimizer and initialization with the highest
+# accuracy was Xavier initialization paired with the Adam optimizer
+# (accuracy = 0.842). That being said, the Adam and AdamW optimizers
+# paired with the He and Xavier initializations were all very similar
+# (and had accuracies around 0.83-0.84). Although, He and AdamW was a
+# better combination compared to He and Adam. The stochastic gradient
+# descent optimizer failed across the board with test accuracies around
+# 0.1 regardless of the initialization used. Both cases experienced
+# vanishing gradients.
+
+
+
+# # # Leaky relu with Xavier intialization.
+# # # According to the googlewebs glorot_uniform = Xavier
+# model_deep = tf.keras.Sequential([
+#     tf.keras.layers.Flatten(input_shape=(28, 28)),
+#     tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='glorot_uniform'),
+#     tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='glorot_uniform'),
+#     tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='glorot_uniform'),
+#     tf.keras.layers.Dense(10, activation='softmax')])
+#
+#
+# model_deep.compile(optimizer='adamw',
+#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+#               metrics=['accuracy'])
+#
+# # Train the model
+# history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
+#
+# # probability_model_deep = tf.keras.Sequential([model_deep,
+# #                                          tf.keras.layers.Softmax()])
+#
+# # Test the loss and accuracy of the model on the test data
+# test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
+#
+# print('\nTest accuracy:', test_acc)
+#
+# # 2. Use tf.GradientTape and 3. Calculate gradients
+# gradient_norms = []
+# layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
+#
+# with tf.GradientTape() as tape:
+#     predictions = model_deep(train_data)
+#     loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+#
+# # Get gradients for all trainable weights
+# trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
+# grads = tape.gradient(loss, trainable_weights)
+#
+# # 4. Calculate gradient norms for each layer
+# grad_idx = 0
+# for layer in model_deep.layers:
+#     if layer.trainable_weights:
+#         layer_grads = []
+#         for weight in layer.trainable_weights:
+#             layer_grads.append(grads[grad_idx])
+#             grad_idx += 1
+#         # Compute L2 norm for the layer's gradients
+#         # Flatten and concatenate all gradients for a layer before computing the norm
+#         flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+#         if tf.size(flat_grads) > 0:
+#             norm = tf.norm(flat_grads)
+#             gradient_norms.append(norm.numpy())
+#         else:
+#             gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+#
+# # 5. Plot the norms
+# plt.figure(figsize=(10, 6))
+# plt.bar(layer_names, gradient_norms)
+# plt.xlabel("Layer")
+# plt.ylabel("Gradient Norm (L2)")
+# plt.title("Gradient Norms Across Layers")
+# plt.xticks(rotation=45, ha="right")
+# plt.tight_layout()
+# plt.draw()
+#
+# plt.figure(figsize=(10, 6))
+# plt.plot(gradient_norms)
+# plt.title('Gradient Norm')
+# plt.ylabel('Gradient Norm')
+# plt.xlabel('Layer')
+# plt.draw()
+#
+# # Plot training & validation accuracy values
+# plt.figure(figsize=(12, 6))
+# plt.subplot(1, 2, 1)
+# plt.plot(history.history['accuracy'], label='Training Accuracy')
+# plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+# plt.title('Model Accuracy')
+# plt.ylabel('Accuracy')
+# plt.xlabel('Epoch')
+# plt.legend(loc='lower right')
+#
+# # Plot training & validation loss values
+# plt.subplot(1, 2, 2)
+# plt.plot(history.history['loss'], label='Training Loss')
+# plt.plot(history.history['val_loss'], label='Validation Loss')
+# plt.title('Model Loss')
+# plt.ylabel('Loss')
+# plt.xlabel('Epoch')
+# plt.legend(loc='upper right')
+# plt.show()
+
+
+# Leaky relu with He intialization.
 model_deep = tf.keras.Sequential([
     tf.keras.layers.Flatten(input_shape=(28, 28)),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
+    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='he_normal'),
+    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='he_normal'),
+    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='he_normal'),
     tf.keras.layers.Dense(10, activation='softmax')])
 
 
-model_deep.compile(optimizer='adam',
+model_deep.compile(optimizer='adamw',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
 
