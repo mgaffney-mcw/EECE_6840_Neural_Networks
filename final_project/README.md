@@ -1,6 +1,6 @@
-# EECE 6840 Homework 3
+# EECE 6840 Final Project
 * created by: Mina Gaffney
-* submitted: on 9/23/2025
+* submitted: on XX/XX/2025
 
 # Environment info
 * This code was written using python 3.12 within a virtual environment
@@ -12,7 +12,7 @@
 * Note this repository is currently private. If you would like to be added send me your github username 
 
 # Instructions
-* Run EECE_6840_homework_3.py normally or in debugger 
+* Run EECE_6840_final_project.py normally or in debugger 
 * After tensorflow initializes a popup window will appear where the user can select the NN and the optimizer
   <br />type then select the "save and quit" button 
 * Note: Adam optimizer is default and was run as the optimizer for coding prompts 1-3
