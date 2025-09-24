@@ -19,7 +19,9 @@
 * I ran out of time to implement the intialization option across all NN's for that question
 * select Leaky ReLU He or Leaky ReLU Xavier
  <br />
+ 
 * Outputs: test accuracy, plots for gradient norms, and plots for test and training accuracy and loss per epoch
 <br />
+
 * TODO: clean up the code so it isn't so repetitive... there's some poor coding practices in there
 * that I hid behind the gui...I hope it's fine for the sake of class 
