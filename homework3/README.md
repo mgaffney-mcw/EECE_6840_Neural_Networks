@@ -13,13 +13,12 @@
 
 # Instructions
 * Run EECE_6840_homework_3.py normally or in debugger 
-* After tensorflow initializes a popup window will appear where the user can select the NN
-* and the optimizer type then select the "save and quit" button 
+* After tensorflow initializes a popup window will appear where the user can select the NN and the optimizer \ntype then select the "save and quit" button 
 * Note: Adam optimizer is default and was run as the optimizer for coding prompts 1-3
 * I ran out of time to implement the intialization option across all NN's for that question
-* select Leaky ReLU He or Leaky ReLU Xavier
+* select Leaky ReLU He or Leaky ReLU Xavier \n
 
-* Outputs: test accuracy, plots for gradient norms, and plots for test and training accuracy and loss per epoch
+* Outputs: test accuracy, plots for gradient norms, and plots for test and training accuracy and loss per epoch\n
 
 * TODO: clean up the code so it isn't so repetitive... there's some poor coding practices in there
 * that I hid behind the gui...I hope it's fine for the sake of class 
