@@ -8,7 +8,7 @@
 * Note: this code was developed using pycharm but was tested for compatibility with VS code 
 
 # Github link
-* https://github.com/mgaffney-mcw/EECE_6840_Neural_Networks/tree/main/homework3
+* https://github.com/mgaffney-mcw/EECE_6840_Neural_Networks/tree/main/final_project
 * Note this repository is currently private. If you would like to be added send me your github username 
 
 # Instructions
