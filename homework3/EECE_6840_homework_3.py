@@ -11,6 +11,39 @@
 # importing things
 import tensorflow as tf
 import matplotlib.pyplot as plt
+import tkinter as tk
+from tkinter import ttk
+
+# modified from geeks for geeks example
+# testing out a drop down menu
+root = tk.Tk()
+root.geometry("200x200")
+
+# Global variable to store the combobox value
+selected_value = None
+
+def on_submit():
+    """Gets the value from the combobox and closes the window."""
+    global selected_value
+    selected_value = cb.get()
+    print(f"Selected value saved: {selected_value}")
+    root.destroy()
+
+
+# Dropdown options
+a = ["Shallow NN", "Deep NN", "ReLU", "Leaky ReLu", "ELU", "GELU", "Leaky Batch Norm"]
+
+# Combobox
+cb = ttk.Combobox(root, values=a)
+cb.set("Select an NN")
+cb.pack()
+
+
+# Button to display selection
+tk.Button(root, text="Save and Quit", command=on_submit).pack()
+
+root.mainloop()
+
 
 # loading fashion_mnist dataset from keras.io
 # Images are 28x28 greyscale
@@ -25,184 +58,186 @@ print('Dataset Loaded')
 
 # Modfiying to build a shallow network with one hidden layer with 10 neurons and
 # a 10 neuron output layer
-# model = tf.keras.Sequential([
-#     tf.keras.layers.Flatten(input_shape=(28, 28)),
-#     tf.keras.layers.Dense(10, activation='relu'),
-#     tf.keras.layers.Dense(10, activation='softmax')])
-#
-#
-# model.compile(optimizer='adam',
-#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#               metrics=['accuracy'])
-#
-# # Train the model
-# history = model.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
-#
-# probability_model = tf.keras.Sequential([model,
-#                                          tf.keras.layers.Softmax()])
-#
-# # Test the loss and accuracy of the model on the test data
-# test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
-#
-# print('\nTest accuracy:', test_acc)
-#
-# # 2. Use tf.GradientTape and 3. Calculate gradients
-# gradient_norms = []
-# layer_names = [layer.name for layer in model.layers if layer.trainable_weights]
-#
-# with tf.GradientTape() as tape:
-#     predictions = model(train_data)
-#     loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
-#
-# # Get gradients for all trainable weights
-# trainable_weights = [weight for layer in model.layers for weight in layer.trainable_weights]
-# grads = tape.gradient(loss, trainable_weights)
-#
-# # 4. Calculate gradient norms for each layer
-# grad_idx = 0
-# for layer in model.layers:
-#     if layer.trainable_weights:
-#         layer_grads = []
-#         for weight in layer.trainable_weights:
-#             layer_grads.append(grads[grad_idx])
-#             grad_idx += 1
-#         # Compute L2 norm for the layer's gradients
-#         # Flatten and concatenate all gradients for a layer before computing the norm
-#         flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
-#         if tf.size(flat_grads) > 0:
-#             norm = tf.norm(flat_grads)
-#             gradient_norms.append(norm.numpy())
-#         else:
-#             gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
-#
-# # 5. Plot the norms
-# plt.figure(figsize=(10, 6))
-# plt.bar(layer_names, gradient_norms)
-# plt.xlabel("Layer")
-# plt.ylabel("Gradient Norm (L2)")
-# plt.title("Gradient Norms Across Layers")
-# plt.xticks(rotation=45, ha="right")
-# plt.tight_layout()
-# plt.draw()
-#
-# plt.figure(figsize=(10, 6))
-# plt.plot(gradient_norms)
-# plt.title('Gradient Norm')
-# plt.ylabel('Gradient Norm')
-# plt.xlabel('Layer')
-# plt.draw()
-#
-# # Plot training & validation accuracy values
-# plt.figure(figsize=(12, 6))
-# plt.subplot(1, 2, 1)
-# plt.plot(history.history['accuracy'], label='Training Accuracy')
-# plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-# plt.title('Model Accuracy')
-# plt.ylabel('Accuracy')
-# plt.xlabel('Epoch')
-# plt.legend(loc='lower right')
-#
-# # Plot training & validation loss values
-# plt.subplot(1, 2, 2)
-# plt.plot(history.history['loss'], label='Training Loss')
-# plt.plot(history.history['val_loss'], label='Validation Loss')
-# plt.title('Model Loss')
-# plt.ylabel('Loss')
-# plt.xlabel('Epoch')
-# plt.legend(loc='upper right')
-# plt.show()
+if selected_value == 'Shallow NN':
+    model = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dense(10, activation='softmax')])
+
+
+    model.compile(optimizer='adam',
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+
+    # Train the model
+    history = model.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
+
+    probability_model = tf.keras.Sequential([model,
+                                             tf.keras.layers.Softmax()])
+
+    # Test the loss and accuracy of the model on the test data
+    test_loss, test_acc = model.evaluate(test_data,  test_labels, verbose=2)
+
+    print('\nTest accuracy:', test_acc)
+
+    # 2. Use tf.GradientTape and 3. Calculate gradients
+    gradient_norms = []
+    layer_names = [layer.name for layer in model.layers if layer.trainable_weights]
+
+    with tf.GradientTape() as tape:
+        predictions = model(train_data)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+
+    # Get gradients for all trainable weights
+    trainable_weights = [weight for layer in model.layers for weight in layer.trainable_weights]
+    grads = tape.gradient(loss, trainable_weights)
+
+    # 4. Calculate gradient norms for each layer
+    grad_idx = 0
+    for layer in model.layers:
+        if layer.trainable_weights:
+            layer_grads = []
+            for weight in layer.trainable_weights:
+                layer_grads.append(grads[grad_idx])
+                grad_idx += 1
+            # Compute L2 norm for the layer's gradients
+            # Flatten and concatenate all gradients for a layer before computing the norm
+            flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+            if tf.size(flat_grads) > 0:
+                norm = tf.norm(flat_grads)
+                gradient_norms.append(norm.numpy())
+            else:
+                gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+
+    # 5. Plot the norms
+    plt.figure(figsize=(10, 6))
+    plt.bar(layer_names, gradient_norms)
+    plt.xlabel("Layer")
+    plt.ylabel("Gradient Norm (L2)")
+    plt.title("Gradient Norms Across Layers")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.draw()
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(gradient_norms)
+    plt.title('Gradient Norm')
+    plt.ylabel('Gradient Norm')
+    plt.xlabel('Layer')
+    plt.draw()
+
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title('Model Accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(loc='lower right')
+
+    # Plot training & validation loss values
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title('Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(loc='upper right')
+    plt.show()
 
 
 # # Modfiying to build a deep network with 3 hidden layers with 10 neurons each and
 # # a 10 neuron output layer
-# model_deep = tf.keras.Sequential([
-#     tf.keras.layers.Flatten(input_shape=(28, 28)),
-#     tf.keras.layers.Dense(10, activation='relu'),
-#     tf.keras.layers.Dense(10, activation='relu'),
-#     tf.keras.layers.Dense(10, activation='relu'),
-#     tf.keras.layers.Dense(10, activation='softmax')])
-#
-#
-# model_deep.compile(optimizer='adam',
-#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#               metrics=['accuracy'])
-#
-# # Train the model
-# history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
-#
-# probability_model_deep = tf.keras.Sequential([model_deep,
-#                                          tf.keras.layers.Softmax()])
-#
-# # Test the loss and accuracy of the model on the test data
-# test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
-#
-# print('\nTest accuracy:', test_acc)
-#
-# # 2. Use tf.GradientTape and 3. Calculate gradients
-# gradient_norms = []
-# layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
-#
-# with tf.GradientTape() as tape:
-#     predictions = model_deep(train_data)
-#     loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
-#
-# # Get gradients for all trainable weights
-# trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
-# grads = tape.gradient(loss, trainable_weights)
-#
-# # 4. Calculate gradient norms for each layer
-# grad_idx = 0
-# for layer in model_deep.layers:
-#     if layer.trainable_weights:
-#         layer_grads = []
-#         for weight in layer.trainable_weights:
-#             layer_grads.append(grads[grad_idx])
-#             grad_idx += 1
-#         # Compute L2 norm for the layer's gradients
-#         # Flatten and concatenate all gradients for a layer before computing the norm
-#         flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
-#         if tf.size(flat_grads) > 0:
-#             norm = tf.norm(flat_grads)
-#             gradient_norms.append(norm.numpy())
-#         else:
-#             gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
-#
-# # 5. Plot the norms
-# plt.figure(figsize=(10, 6))
-# plt.bar(layer_names, gradient_norms)
-# plt.xlabel("Layer")
-# plt.ylabel("Gradient Norm (L2)")
-# plt.title("Gradient Norms Across Layers")
-# plt.xticks(rotation=45, ha="right")
-# plt.tight_layout()
-# plt.draw()
-#
-# plt.figure(figsize=(10, 6))
-# plt.plot(gradient_norms)
-# plt.title('Gradient Norm')
-# plt.ylabel('Gradient Norm')
-# plt.xlabel('Layer')
-# plt.draw()
-#
-# # Plot training & validation accuracy values
-# plt.figure(figsize=(12, 6))
-# plt.subplot(1, 2, 1)
-# plt.plot(history.history['accuracy'], label='Training Accuracy')
-# plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-# plt.title('Model Accuracy')
-# plt.ylabel('Accuracy')
-# plt.xlabel('Epoch')
-# plt.legend(loc='lower right')
-#
-# # Plot training & validation loss values
-# plt.subplot(1, 2, 2)
-# plt.plot(history.history['loss'], label='Training Loss')
-# plt.plot(history.history['val_loss'], label='Validation Loss')
-# plt.title('Model Loss')
-# plt.ylabel('Loss')
-# plt.xlabel('Epoch')
-# plt.legend(loc='upper right')
-# plt.show()
+if selected_value == 'Deep NN' or selected_value == 'ReLU':
+    model_deep = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dense(10, activation='relu'),
+        tf.keras.layers.Dense(10, activation='softmax')])
+
+
+    model_deep.compile(optimizer='adam',
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+
+    # Train the model
+    history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
+
+    probability_model_deep = tf.keras.Sequential([model_deep,
+                                             tf.keras.layers.Softmax()])
+
+    # Test the loss and accuracy of the model on the test data
+    test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
+
+    print('\nTest accuracy:', test_acc)
+
+    # 2. Use tf.GradientTape and 3. Calculate gradients
+    gradient_norms = []
+    layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
+
+    with tf.GradientTape() as tape:
+        predictions = model_deep(train_data)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+
+    # Get gradients for all trainable weights
+    trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
+    grads = tape.gradient(loss, trainable_weights)
+
+    # 4. Calculate gradient norms for each layer
+    grad_idx = 0
+    for layer in model_deep.layers:
+        if layer.trainable_weights:
+            layer_grads = []
+            for weight in layer.trainable_weights:
+                layer_grads.append(grads[grad_idx])
+                grad_idx += 1
+            # Compute L2 norm for the layer's gradients
+            # Flatten and concatenate all gradients for a layer before computing the norm
+            flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+            if tf.size(flat_grads) > 0:
+                norm = tf.norm(flat_grads)
+                gradient_norms.append(norm.numpy())
+            else:
+                gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+
+    # 5. Plot the norms
+    plt.figure(figsize=(10, 6))
+    plt.bar(layer_names, gradient_norms)
+    plt.xlabel("Layer")
+    plt.ylabel("Gradient Norm (L2)")
+    plt.title("Gradient Norms Across Layers")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.draw()
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(gradient_norms)
+    plt.title('Gradient Norm')
+    plt.ylabel('Gradient Norm')
+    plt.xlabel('Layer')
+    plt.draw()
+
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title('Model Accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(loc='lower right')
+
+    # Plot training & validation loss values
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title('Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(loc='upper right')
+    plt.show()
 
 # Comment on evidence of vanishing/exploding gradients.
 
@@ -223,275 +258,278 @@ print('Dataset Loaded')
 
 # original implementation was ReLU... moving on to the other activation functions
 # starting with ELU because it's easy to swap out with my existing dense layers
-# model_deep = tf.keras.Sequential([
-#     tf.keras.layers.Flatten(input_shape=(28, 28)),
-#     tf.keras.layers.Dense(10, activation='elu'),
-#     tf.keras.layers.Dense(10, activation='elu'),
-#     tf.keras.layers.Dense(10, activation='elu'),
-#     tf.keras.layers.Dense(10, activation='softmax')])
-#
-#
-# model_deep.compile(optimizer='adam',
-#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#               metrics=['accuracy'])
-#
-# # Train the model
-# history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
-#
-# # probability_model_deep = tf.keras.Sequential([model_deep,
-# #                                          tf.keras.layers.Softmax()])
-#
-# # Test the loss and accuracy of the model on the test data
-# test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
-#
-# print('\nTest accuracy:', test_acc)
-#
-# # 2. Use tf.GradientTape and 3. Calculate gradients
-# gradient_norms = []
-# layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
-#
-# with tf.GradientTape() as tape:
-#     predictions = model_deep(train_data)
-#     loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
-#
-# # Get gradients for all trainable weights
-# trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
-# grads = tape.gradient(loss, trainable_weights)
-#
-# # 4. Calculate gradient norms for each layer
-# grad_idx = 0
-# for layer in model_deep.layers:
-#     if layer.trainable_weights:
-#         layer_grads = []
-#         for weight in layer.trainable_weights:
-#             layer_grads.append(grads[grad_idx])
-#             grad_idx += 1
-#         # Compute L2 norm for the layer's gradients
-#         # Flatten and concatenate all gradients for a layer before computing the norm
-#         flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
-#         if tf.size(flat_grads) > 0:
-#             norm = tf.norm(flat_grads)
-#             gradient_norms.append(norm.numpy())
-#         else:
-#             gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
-#
-# # 5. Plot the norms
-# plt.figure(figsize=(10, 6))
-# plt.bar(layer_names, gradient_norms)
-# plt.xlabel("Layer")
-# plt.ylabel("Gradient Norm (L2)")
-# plt.title("Gradient Norms Across Layers")
-# plt.xticks(rotation=45, ha="right")
-# plt.tight_layout()
-# plt.draw()
-#
-# plt.figure(figsize=(10, 6))
-# plt.plot(gradient_norms)
-# plt.title('Gradient Norm')
-# plt.ylabel('Gradient Norm')
-# plt.xlabel('Layer')
-# plt.draw()
-#
-# # Plot training & validation accuracy values
-# plt.figure(figsize=(12, 6))
-# plt.subplot(1, 2, 1)
-# plt.plot(history.history['accuracy'], label='Training Accuracy')
-# plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-# plt.title('Model Accuracy')
-# plt.ylabel('Accuracy')
-# plt.xlabel('Epoch')
-# plt.legend(loc='lower right')
-#
-# # Plot training & validation loss values
-# plt.subplot(1, 2, 2)
-# plt.plot(history.history['loss'], label='Training Loss')
-# plt.plot(history.history['val_loss'], label='Validation Loss')
-# plt.title('Model Loss')
-# plt.ylabel('Loss')
-# plt.xlabel('Epoch')
-# plt.legend(loc='upper right')
-# plt.show()
+if selected_value == 'ELU':
+    model_deep = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(10, activation='elu'),
+        tf.keras.layers.Dense(10, activation='elu'),
+        tf.keras.layers.Dense(10, activation='elu'),
+        tf.keras.layers.Dense(10, activation='softmax')])
+
+
+    model_deep.compile(optimizer='adam',
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+
+    # Train the model
+    history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
+
+    # probability_model_deep = tf.keras.Sequential([model_deep,
+    #                                          tf.keras.layers.Softmax()])
+
+    # Test the loss and accuracy of the model on the test data
+    test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
+
+    print('\nTest accuracy:', test_acc)
+
+    # 2. Use tf.GradientTape and 3. Calculate gradients
+    gradient_norms = []
+    layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
+
+    with tf.GradientTape() as tape:
+        predictions = model_deep(train_data)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+
+    # Get gradients for all trainable weights
+    trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
+    grads = tape.gradient(loss, trainable_weights)
+
+    # 4. Calculate gradient norms for each layer
+    grad_idx = 0
+    for layer in model_deep.layers:
+        if layer.trainable_weights:
+            layer_grads = []
+            for weight in layer.trainable_weights:
+                layer_grads.append(grads[grad_idx])
+                grad_idx += 1
+            # Compute L2 norm for the layer's gradients
+            # Flatten and concatenate all gradients for a layer before computing the norm
+            flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+            if tf.size(flat_grads) > 0:
+                norm = tf.norm(flat_grads)
+                gradient_norms.append(norm.numpy())
+            else:
+                gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+
+    # 5. Plot the norms
+    plt.figure(figsize=(10, 6))
+    plt.bar(layer_names, gradient_norms)
+    plt.xlabel("Layer")
+    plt.ylabel("Gradient Norm (L2)")
+    plt.title("Gradient Norms Across Layers")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.draw()
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(gradient_norms)
+    plt.title('Gradient Norm')
+    plt.ylabel('Gradient Norm')
+    plt.xlabel('Layer')
+    plt.draw()
+
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title('Model Accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(loc='lower right')
+
+    # Plot training & validation loss values
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title('Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(loc='upper right')
+    plt.show()
 
 
 # on to GELU which is also easy to implement...
-# model_deep = tf.keras.Sequential([
-#     tf.keras.layers.Flatten(input_shape=(28, 28)),
-#     tf.keras.layers.Dense(10, activation='gelu'),
-#     tf.keras.layers.Dense(10, activation='gelu'),
-#     tf.keras.layers.Dense(10, activation='gelu'),
-#     tf.keras.layers.Dense(10, activation='softmax')])
-#
-#
-# model_deep.compile(optimizer='adam',
-#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#               metrics=['accuracy'])
-#
-# # Train the model
-# history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
-#
-# # probability_model_deep = tf.keras.Sequential([model_deep,
-# #                                          tf.keras.layers.Softmax()])
-#
-# # Test the loss and accuracy of the model on the test data
-# test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
-#
-# print('\nTest accuracy:', test_acc)
-#
-# # 2. Use tf.GradientTape and 3. Calculate gradients
-# gradient_norms = []
-# layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
-#
-# with tf.GradientTape() as tape:
-#     predictions = model_deep(train_data)
-#     loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
-#
-# # Get gradients for all trainable weights
-# trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
-# grads = tape.gradient(loss, trainable_weights)
-#
-# # 4. Calculate gradient norms for each layer
-# grad_idx = 0
-# for layer in model_deep.layers:
-#     if layer.trainable_weights:
-#         layer_grads = []
-#         for weight in layer.trainable_weights:
-#             layer_grads.append(grads[grad_idx])
-#             grad_idx += 1
-#         # Compute L2 norm for the layer's gradients
-#         # Flatten and concatenate all gradients for a layer before computing the norm
-#         flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
-#         if tf.size(flat_grads) > 0:
-#             norm = tf.norm(flat_grads)
-#             gradient_norms.append(norm.numpy())
-#         else:
-#             gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
-#
-# # 5. Plot the norms
-# plt.figure(figsize=(10, 6))
-# plt.bar(layer_names, gradient_norms)
-# plt.xlabel("Layer")
-# plt.ylabel("Gradient Norm (L2)")
-# plt.title("Gradient Norms Across Layers")
-# plt.xticks(rotation=45, ha="right")
-# plt.tight_layout()
-# plt.draw()
-#
-# plt.figure(figsize=(10, 6))
-# plt.plot(gradient_norms)
-# plt.title('Gradient Norm')
-# plt.ylabel('Gradient Norm')
-# plt.xlabel('Layer')
-# plt.draw()
-#
-# # Plot training & validation accuracy values
-# plt.figure(figsize=(12, 6))
-# plt.subplot(1, 2, 1)
-# plt.plot(history.history['accuracy'], label='Training Accuracy')
-# plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-# plt.title('Model Accuracy')
-# plt.ylabel('Accuracy')
-# plt.xlabel('Epoch')
-# plt.legend(loc='lower right')
-#
-# # Plot training & validation loss values
-# plt.subplot(1, 2, 2)
-# plt.plot(history.history['loss'], label='Training Loss')
-# plt.plot(history.history['val_loss'], label='Validation Loss')
-# plt.title('Model Loss')
-# plt.ylabel('Loss')
-# plt.xlabel('Epoch')
-# plt.legend(loc='upper right')
-# plt.show()
+if selected_value == 'GELU':
+    model_deep = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(10, activation='gelu'),
+        tf.keras.layers.Dense(10, activation='gelu'),
+        tf.keras.layers.Dense(10, activation='gelu'),
+        tf.keras.layers.Dense(10, activation='softmax')])
+
+
+    model_deep.compile(optimizer='adam',
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+
+    # Train the model
+    history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
+
+    # probability_model_deep = tf.keras.Sequential([model_deep,
+    #                                          tf.keras.layers.Softmax()])
+
+    # Test the loss and accuracy of the model on the test data
+    test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
+
+    print('\nTest accuracy:', test_acc)
+
+    # 2. Use tf.GradientTape and 3. Calculate gradients
+    gradient_norms = []
+    layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
+
+    with tf.GradientTape() as tape:
+        predictions = model_deep(train_data)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+
+    # Get gradients for all trainable weights
+    trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
+    grads = tape.gradient(loss, trainable_weights)
+
+    # 4. Calculate gradient norms for each layer
+    grad_idx = 0
+    for layer in model_deep.layers:
+        if layer.trainable_weights:
+            layer_grads = []
+            for weight in layer.trainable_weights:
+                layer_grads.append(grads[grad_idx])
+                grad_idx += 1
+            # Compute L2 norm for the layer's gradients
+            # Flatten and concatenate all gradients for a layer before computing the norm
+            flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+            if tf.size(flat_grads) > 0:
+                norm = tf.norm(flat_grads)
+                gradient_norms.append(norm.numpy())
+            else:
+                gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+
+    # 5. Plot the norms
+    plt.figure(figsize=(10, 6))
+    plt.bar(layer_names, gradient_norms)
+    plt.xlabel("Layer")
+    plt.ylabel("Gradient Norm (L2)")
+    plt.title("Gradient Norms Across Layers")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.draw()
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(gradient_norms)
+    plt.title('Gradient Norm')
+    plt.ylabel('Gradient Norm')
+    plt.xlabel('Layer')
+    plt.draw()
+
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title('Model Accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(loc='lower right')
+
+    # Plot training & validation loss values
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title('Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(loc='upper right')
+    plt.show()
 
 # # Leaky relu
-# model_deep = tf.keras.Sequential([
-#     tf.keras.layers.Flatten(input_shape=(28, 28)),
-#     tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
-#     tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
-#     tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
-#     tf.keras.layers.Dense(10, activation='softmax')])
-#
-#
-# model_deep.compile(optimizer='adam',
-#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#               metrics=['accuracy'])
-#
-# # Train the model
-# history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
-#
-# # probability_model_deep = tf.keras.Sequential([model_deep,
-# #                                          tf.keras.layers.Softmax()])
-#
-# # Test the loss and accuracy of the model on the test data
-# test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
-#
-# print('\nTest accuracy:', test_acc)
-#
-# # 2. Use tf.GradientTape and 3. Calculate gradients
-# gradient_norms = []
-# layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
-#
-# with tf.GradientTape() as tape:
-#     predictions = model_deep(train_data)
-#     loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
-#
-# # Get gradients for all trainable weights
-# trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
-# grads = tape.gradient(loss, trainable_weights)
-#
-# # 4. Calculate gradient norms for each layer
-# grad_idx = 0
-# for layer in model_deep.layers:
-#     if layer.trainable_weights:
-#         layer_grads = []
-#         for weight in layer.trainable_weights:
-#             layer_grads.append(grads[grad_idx])
-#             grad_idx += 1
-#         # Compute L2 norm for the layer's gradients
-#         # Flatten and concatenate all gradients for a layer before computing the norm
-#         flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
-#         if tf.size(flat_grads) > 0:
-#             norm = tf.norm(flat_grads)
-#             gradient_norms.append(norm.numpy())
-#         else:
-#             gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
-#
-# # 5. Plot the norms
-# plt.figure(figsize=(10, 6))
-# plt.bar(layer_names, gradient_norms)
-# plt.xlabel("Layer")
-# plt.ylabel("Gradient Norm (L2)")
-# plt.title("Gradient Norms Across Layers")
-# plt.xticks(rotation=45, ha="right")
-# plt.tight_layout()
-# plt.draw()
-#
-# plt.figure(figsize=(10, 6))
-# plt.plot(gradient_norms)
-# plt.title('Gradient Norm')
-# plt.ylabel('Gradient Norm')
-# plt.xlabel('Layer')
-# plt.draw()
-#
-# # Plot training & validation accuracy values
-# plt.figure(figsize=(12, 6))
-# plt.subplot(1, 2, 1)
-# plt.plot(history.history['accuracy'], label='Training Accuracy')
-# plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-# plt.title('Model Accuracy')
-# plt.ylabel('Accuracy')
-# plt.xlabel('Epoch')
-# plt.legend(loc='lower right')
-#
-# # Plot training & validation loss values
-# plt.subplot(1, 2, 2)
-# plt.plot(history.history['loss'], label='Training Loss')
-# plt.plot(history.history['val_loss'], label='Validation Loss')
-# plt.title('Model Loss')
-# plt.ylabel('Loss')
-# plt.xlabel('Epoch')
-# plt.legend(loc='upper right')
-# plt.show()
+if selected_value == 'Leaky ReLu':
+    model_deep = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
+        tf.keras.layers.Dense(10, activation='softmax')])
+
+
+    model_deep.compile(optimizer='adam',
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+
+    # Train the model
+    history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
+
+    # probability_model_deep = tf.keras.Sequential([model_deep,
+    #                                          tf.keras.layers.Softmax()])
+
+    # Test the loss and accuracy of the model on the test data
+    test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
+
+    print('\nTest accuracy:', test_acc)
+
+    # 2. Use tf.GradientTape and 3. Calculate gradients
+    gradient_norms = []
+    layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
+
+    with tf.GradientTape() as tape:
+        predictions = model_deep(train_data)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+
+    # Get gradients for all trainable weights
+    trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
+    grads = tape.gradient(loss, trainable_weights)
+
+    # 4. Calculate gradient norms for each layer
+    grad_idx = 0
+    for layer in model_deep.layers:
+        if layer.trainable_weights:
+            layer_grads = []
+            for weight in layer.trainable_weights:
+                layer_grads.append(grads[grad_idx])
+                grad_idx += 1
+            # Compute L2 norm for the layer's gradients
+            # Flatten and concatenate all gradients for a layer before computing the norm
+            flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+            if tf.size(flat_grads) > 0:
+                norm = tf.norm(flat_grads)
+                gradient_norms.append(norm.numpy())
+            else:
+                gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+
+    # 5. Plot the norms
+    plt.figure(figsize=(10, 6))
+    plt.bar(layer_names, gradient_norms)
+    plt.xlabel("Layer")
+    plt.ylabel("Gradient Norm (L2)")
+    plt.title("Gradient Norms Across Layers")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.draw()
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(gradient_norms)
+    plt.title('Gradient Norm')
+    plt.ylabel('Gradient Norm')
+    plt.xlabel('Layer')
+    plt.draw()
+
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title('Model Accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(loc='lower right')
+
+    # Plot training & validation loss values
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title('Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(loc='upper right')
+    plt.show()
 
 # Discuss which activation gave the most stable training and why.
 
@@ -517,95 +555,96 @@ print('Dataset Loaded')
 # is marginal.)
 
 # Leaky relu with batch normalization in first layer
-model_deep = tf.keras.Sequential([
-    tf.keras.layers.Flatten(input_shape=(28, 28)),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
-    tf.keras.layers.BatchNormalization(),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
-    tf.keras.layers.Dense(10, activation='softmax')])
+if selected_value == 'Leaky Batch Norm':
+    model_deep = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
+        tf.keras.layers.BatchNormalization(),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
+        tf.keras.layers.Dense(10, activation='softmax')])
 
 
-model_deep.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              metrics=['accuracy'])
+    model_deep.compile(optimizer='adam',
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
 
-# Train the model
-history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
+    # Train the model
+    history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
 
-# probability_model_deep = tf.keras.Sequential([model_deep,
-#                                          tf.keras.layers.Softmax()])
+    # probability_model_deep = tf.keras.Sequential([model_deep,
+    #                                          tf.keras.layers.Softmax()])
 
-# Test the loss and accuracy of the model on the test data
-test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
+    # Test the loss and accuracy of the model on the test data
+    test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
 
-print('\nTest accuracy:', test_acc)
+    print('\nTest accuracy:', test_acc)
 
-# 2. Use tf.GradientTape and 3. Calculate gradients
-gradient_norms = []
-layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
+    # 2. Use tf.GradientTape and 3. Calculate gradients
+    gradient_norms = []
+    layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
 
-with tf.GradientTape() as tape:
-    predictions = model_deep(train_data)
-    loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+    with tf.GradientTape() as tape:
+        predictions = model_deep(train_data)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
 
-# Get gradients for all trainable weights
-trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
-grads = tape.gradient(loss, trainable_weights)
+    # Get gradients for all trainable weights
+    trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
+    grads = tape.gradient(loss, trainable_weights)
 
-# 4. Calculate gradient norms for each layer
-grad_idx = 0
-for layer in model_deep.layers:
-    if layer.trainable_weights:
-        layer_grads = []
-        for weight in layer.trainable_weights:
-            layer_grads.append(grads[grad_idx])
-            grad_idx += 1
-        # Compute L2 norm for the layer's gradients
-        # Flatten and concatenate all gradients for a layer before computing the norm
-        flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
-        if tf.size(flat_grads) > 0:
-            norm = tf.norm(flat_grads)
-            gradient_norms.append(norm.numpy())
-        else:
-            gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+    # 4. Calculate gradient norms for each layer
+    grad_idx = 0
+    for layer in model_deep.layers:
+        if layer.trainable_weights:
+            layer_grads = []
+            for weight in layer.trainable_weights:
+                layer_grads.append(grads[grad_idx])
+                grad_idx += 1
+            # Compute L2 norm for the layer's gradients
+            # Flatten and concatenate all gradients for a layer before computing the norm
+            flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+            if tf.size(flat_grads) > 0:
+                norm = tf.norm(flat_grads)
+                gradient_norms.append(norm.numpy())
+            else:
+                gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
 
-# 5. Plot the norms
-plt.figure(figsize=(10, 6))
-plt.bar(layer_names, gradient_norms)
-plt.xlabel("Layer")
-plt.ylabel("Gradient Norm (L2)")
-plt.title("Gradient Norms Across Layers")
-plt.xticks(rotation=45, ha="right")
-plt.tight_layout()
-plt.draw()
+    # 5. Plot the norms
+    plt.figure(figsize=(10, 6))
+    plt.bar(layer_names, gradient_norms)
+    plt.xlabel("Layer")
+    plt.ylabel("Gradient Norm (L2)")
+    plt.title("Gradient Norms Across Layers")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.draw()
 
-plt.figure(figsize=(10, 6))
-plt.plot(gradient_norms)
-plt.title('Gradient Norm')
-plt.ylabel('Gradient Norm')
-plt.xlabel('Layer')
-plt.draw()
+    plt.figure(figsize=(10, 6))
+    plt.plot(gradient_norms)
+    plt.title('Gradient Norm')
+    plt.ylabel('Gradient Norm')
+    plt.xlabel('Layer')
+    plt.draw()
 
-# Plot training & validation accuracy values
-plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
-plt.plot(history.history['accuracy'], label='Training Accuracy')
-plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-plt.title('Model Accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(loc='lower right')
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title('Model Accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(loc='lower right')
 
-# Plot training & validation loss values
-plt.subplot(1, 2, 2)
-plt.plot(history.history['loss'], label='Training Loss')
-plt.plot(history.history['val_loss'], label='Validation Loss')
-plt.title('Model Loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(loc='upper right')
-plt.show()
+    # Plot training & validation loss values
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title('Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(loc='upper right')
+    plt.show()
 
 ###########################################################################
 
@@ -625,7 +664,6 @@ plt.show()
 # descent optimizer failed across the board with test accuracies around
 # 0.1 regardless of the initialization used. Both cases experienced
 # vanishing gradients.
-
 
 
 # # # Leaky relu with Xavier intialization.
