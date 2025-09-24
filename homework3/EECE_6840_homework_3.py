@@ -20,24 +20,34 @@ root = tk.Tk()
 root.geometry("200x200")
 
 # Global variable to store the combobox value
-selected_value = None
+selected_NN = None
+selected_optimizer = 'Adam'
 
 def on_submit():
     """Gets the value from the combobox and closes the window."""
-    global selected_value
-    selected_value = cb.get()
-    print(f"Selected value saved: {selected_value}")
+    global selected_NN, selected_optimizer
+    selected_NN = cb.get()
+    selected_optimizer = cb2.get()
+    print(f"Selected NN saved: {selected_NN}")
+    print(f"Selected optimizer saved: {selected_optimizer}")
     root.destroy()
 
 
 # Dropdown options
-a = ["Shallow NN", "Deep NN", "ReLU", "Leaky ReLu", "ELU", "GELU", "Leaky Batch Norm"]
+a = ["Shallow NN", "Deep NN", "ReLU", "Leaky ReLu", "ELU", "GELU", "Leaky Batch Norm", "Leaky ReLU He", "Leaky ReLU Xavier"]
 
 # Combobox
 cb = ttk.Combobox(root, values=a)
 cb.set("Select an NN")
 cb.pack()
 
+# Dropdown options
+a2 = ["Adam", "SGD", "AdamW"]
+
+# Combobox
+cb2 = ttk.Combobox(root, values=a2)
+cb2.set("Select an optimizer")
+cb2.pack()
 
 # Button to display selection
 tk.Button(root, text="Save and Quit", command=on_submit).pack()
@@ -58,14 +68,14 @@ print('Dataset Loaded')
 
 # Modfiying to build a shallow network with one hidden layer with 10 neurons and
 # a 10 neuron output layer
-if selected_value == 'Shallow NN':
+if selected_NN == 'Shallow NN':
     model = tf.keras.Sequential([
         tf.keras.layers.Flatten(input_shape=(28, 28)),
         tf.keras.layers.Dense(10, activation='relu'),
         tf.keras.layers.Dense(10, activation='softmax')])
 
 
-    model.compile(optimizer='adam',
+    model.compile(optimizer=selected_optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
@@ -149,7 +159,7 @@ if selected_value == 'Shallow NN':
 
 # # Modfiying to build a deep network with 3 hidden layers with 10 neurons each and
 # # a 10 neuron output layer
-if selected_value == 'Deep NN' or selected_value == 'ReLU':
+if selected_NN == 'Deep NN' or selected_NN == 'ReLU':
     model_deep = tf.keras.Sequential([
         tf.keras.layers.Flatten(input_shape=(28, 28)),
         tf.keras.layers.Dense(10, activation='relu'),
@@ -158,7 +168,7 @@ if selected_value == 'Deep NN' or selected_value == 'ReLU':
         tf.keras.layers.Dense(10, activation='softmax')])
 
 
-    model_deep.compile(optimizer='adam',
+    model_deep.compile(optimizer=selected_optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
@@ -258,7 +268,7 @@ if selected_value == 'Deep NN' or selected_value == 'ReLU':
 
 # original implementation was ReLU... moving on to the other activation functions
 # starting with ELU because it's easy to swap out with my existing dense layers
-if selected_value == 'ELU':
+if selected_NN == 'ELU':
     model_deep = tf.keras.Sequential([
         tf.keras.layers.Flatten(input_shape=(28, 28)),
         tf.keras.layers.Dense(10, activation='elu'),
@@ -267,7 +277,7 @@ if selected_value == 'ELU':
         tf.keras.layers.Dense(10, activation='softmax')])
 
 
-    model_deep.compile(optimizer='adam',
+    model_deep.compile(optimizer=selected_optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
@@ -350,7 +360,7 @@ if selected_value == 'ELU':
 
 
 # on to GELU which is also easy to implement...
-if selected_value == 'GELU':
+if selected_NN == 'GELU':
     model_deep = tf.keras.Sequential([
         tf.keras.layers.Flatten(input_shape=(28, 28)),
         tf.keras.layers.Dense(10, activation='gelu'),
@@ -359,7 +369,7 @@ if selected_value == 'GELU':
         tf.keras.layers.Dense(10, activation='softmax')])
 
 
-    model_deep.compile(optimizer='adam',
+    model_deep.compile(optimizer=selected_optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
@@ -441,7 +451,7 @@ if selected_value == 'GELU':
     plt.show()
 
 # # Leaky relu
-if selected_value == 'Leaky ReLu':
+if selected_NN == 'Leaky ReLu':
     model_deep = tf.keras.Sequential([
         tf.keras.layers.Flatten(input_shape=(28, 28)),
         tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
@@ -450,7 +460,7 @@ if selected_value == 'Leaky ReLu':
         tf.keras.layers.Dense(10, activation='softmax')])
 
 
-    model_deep.compile(optimizer='adam',
+    model_deep.compile(optimizer=selected_optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
@@ -555,7 +565,7 @@ if selected_value == 'Leaky ReLu':
 # is marginal.)
 
 # Leaky relu with batch normalization in first layer
-if selected_value == 'Leaky Batch Norm':
+if selected_NN == 'Leaky Batch Norm':
     model_deep = tf.keras.Sequential([
         tf.keras.layers.Flatten(input_shape=(28, 28)),
         tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05)),
@@ -565,7 +575,7 @@ if selected_value == 'Leaky Batch Norm':
         tf.keras.layers.Dense(10, activation='softmax')])
 
 
-    model_deep.compile(optimizer='adam',
+    model_deep.compile(optimizer=selected_optimizer,
                   loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
                   metrics=['accuracy'])
 
@@ -668,182 +678,184 @@ if selected_value == 'Leaky Batch Norm':
 
 # # # Leaky relu with Xavier intialization.
 # # # According to the googlewebs glorot_uniform = Xavier
-# model_deep = tf.keras.Sequential([
-#     tf.keras.layers.Flatten(input_shape=(28, 28)),
-#     tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='glorot_uniform'),
-#     tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='glorot_uniform'),
-#     tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='glorot_uniform'),
-#     tf.keras.layers.Dense(10, activation='softmax')])
-#
-#
-# model_deep.compile(optimizer='adamw',
-#               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-#               metrics=['accuracy'])
-#
-# # Train the model
-# history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
-#
-# # probability_model_deep = tf.keras.Sequential([model_deep,
-# #                                          tf.keras.layers.Softmax()])
-#
-# # Test the loss and accuracy of the model on the test data
-# test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
-#
-# print('\nTest accuracy:', test_acc)
-#
-# # 2. Use tf.GradientTape and 3. Calculate gradients
-# gradient_norms = []
-# layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
-#
-# with tf.GradientTape() as tape:
-#     predictions = model_deep(train_data)
-#     loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
-#
-# # Get gradients for all trainable weights
-# trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
-# grads = tape.gradient(loss, trainable_weights)
-#
-# # 4. Calculate gradient norms for each layer
-# grad_idx = 0
-# for layer in model_deep.layers:
-#     if layer.trainable_weights:
-#         layer_grads = []
-#         for weight in layer.trainable_weights:
-#             layer_grads.append(grads[grad_idx])
-#             grad_idx += 1
-#         # Compute L2 norm for the layer's gradients
-#         # Flatten and concatenate all gradients for a layer before computing the norm
-#         flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
-#         if tf.size(flat_grads) > 0:
-#             norm = tf.norm(flat_grads)
-#             gradient_norms.append(norm.numpy())
-#         else:
-#             gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
-#
-# # 5. Plot the norms
-# plt.figure(figsize=(10, 6))
-# plt.bar(layer_names, gradient_norms)
-# plt.xlabel("Layer")
-# plt.ylabel("Gradient Norm (L2)")
-# plt.title("Gradient Norms Across Layers")
-# plt.xticks(rotation=45, ha="right")
-# plt.tight_layout()
-# plt.draw()
-#
-# plt.figure(figsize=(10, 6))
-# plt.plot(gradient_norms)
-# plt.title('Gradient Norm')
-# plt.ylabel('Gradient Norm')
-# plt.xlabel('Layer')
-# plt.draw()
-#
-# # Plot training & validation accuracy values
-# plt.figure(figsize=(12, 6))
-# plt.subplot(1, 2, 1)
-# plt.plot(history.history['accuracy'], label='Training Accuracy')
-# plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-# plt.title('Model Accuracy')
-# plt.ylabel('Accuracy')
-# plt.xlabel('Epoch')
-# plt.legend(loc='lower right')
-#
-# # Plot training & validation loss values
-# plt.subplot(1, 2, 2)
-# plt.plot(history.history['loss'], label='Training Loss')
-# plt.plot(history.history['val_loss'], label='Validation Loss')
-# plt.title('Model Loss')
-# plt.ylabel('Loss')
-# plt.xlabel('Epoch')
-# plt.legend(loc='upper right')
-# plt.show()
+if selected_NN == 'Leaky ReLU Xavier':
+    model_deep = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='glorot_uniform'),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='glorot_uniform'),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='glorot_uniform'),
+        tf.keras.layers.Dense(10, activation='softmax')])
+
+
+    model_deep.compile(optimizer=selected_optimizer,
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
+
+    # Train the model
+    history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
+
+    # probability_model_deep = tf.keras.Sequential([model_deep,
+    #                                          tf.keras.layers.Softmax()])
+
+    # Test the loss and accuracy of the model on the test data
+    test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
+
+    print('\nTest accuracy:', test_acc)
+
+    # 2. Use tf.GradientTape and 3. Calculate gradients
+    gradient_norms = []
+    layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
+
+    with tf.GradientTape() as tape:
+        predictions = model_deep(train_data)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+
+    # Get gradients for all trainable weights
+    trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
+    grads = tape.gradient(loss, trainable_weights)
+
+    # 4. Calculate gradient norms for each layer
+    grad_idx = 0
+    for layer in model_deep.layers:
+        if layer.trainable_weights:
+            layer_grads = []
+            for weight in layer.trainable_weights:
+                layer_grads.append(grads[grad_idx])
+                grad_idx += 1
+            # Compute L2 norm for the layer's gradients
+            # Flatten and concatenate all gradients for a layer before computing the norm
+            flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+            if tf.size(flat_grads) > 0:
+                norm = tf.norm(flat_grads)
+                gradient_norms.append(norm.numpy())
+            else:
+                gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+
+    # 5. Plot the norms
+    plt.figure(figsize=(10, 6))
+    plt.bar(layer_names, gradient_norms)
+    plt.xlabel("Layer")
+    plt.ylabel("Gradient Norm (L2)")
+    plt.title("Gradient Norms Across Layers")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.draw()
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(gradient_norms)
+    plt.title('Gradient Norm')
+    plt.ylabel('Gradient Norm')
+    plt.xlabel('Layer')
+    plt.draw()
+
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title('Model Accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(loc='lower right')
+
+    # Plot training & validation loss values
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title('Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(loc='upper right')
+    plt.show()
 
 
 # Leaky relu with He intialization.
-model_deep = tf.keras.Sequential([
-    tf.keras.layers.Flatten(input_shape=(28, 28)),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='he_normal'),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='he_normal'),
-    tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='he_normal'),
-    tf.keras.layers.Dense(10, activation='softmax')])
+if selected_NN == 'Leaky ReLU He':
+    model_deep = tf.keras.Sequential([
+        tf.keras.layers.Flatten(input_shape=(28, 28)),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='he_normal'),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='he_normal'),
+        tf.keras.layers.Dense(10, activation=tf.keras.layers.LeakyReLU(alpha=0.05),kernel_initializer='he_normal'),
+        tf.keras.layers.Dense(10, activation='softmax')])
 
 
-model_deep.compile(optimizer='adamw',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
-              metrics=['accuracy'])
+    model_deep.compile(optimizer=selected_optimizer,
+                  loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+                  metrics=['accuracy'])
 
-# Train the model
-history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
+    # Train the model
+    history = model_deep.fit(train_data, train_labels, epochs=10, validation_data=(test_data, test_labels))
 
-# probability_model_deep = tf.keras.Sequential([model_deep,
-#                                          tf.keras.layers.Softmax()])
+    # probability_model_deep = tf.keras.Sequential([model_deep,
+    #                                          tf.keras.layers.Softmax()])
 
-# Test the loss and accuracy of the model on the test data
-test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
+    # Test the loss and accuracy of the model on the test data
+    test_loss, test_acc = model_deep.evaluate(test_data,  test_labels, verbose=2)
 
-print('\nTest accuracy:', test_acc)
+    print('\nTest accuracy:', test_acc)
 
-# 2. Use tf.GradientTape and 3. Calculate gradients
-gradient_norms = []
-layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
+    # 2. Use tf.GradientTape and 3. Calculate gradients
+    gradient_norms = []
+    layer_names = [layer.name for layer in model_deep.layers if layer.trainable_weights]
 
-with tf.GradientTape() as tape:
-    predictions = model_deep(train_data)
-    loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
+    with tf.GradientTape() as tape:
+        predictions = model_deep(train_data)
+        loss = tf.keras.losses.SparseCategoricalCrossentropy()(train_labels, predictions)
 
-# Get gradients for all trainable weights
-trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
-grads = tape.gradient(loss, trainable_weights)
+    # Get gradients for all trainable weights
+    trainable_weights = [weight for layer in model_deep.layers for weight in layer.trainable_weights]
+    grads = tape.gradient(loss, trainable_weights)
 
-# 4. Calculate gradient norms for each layer
-grad_idx = 0
-for layer in model_deep.layers:
-    if layer.trainable_weights:
-        layer_grads = []
-        for weight in layer.trainable_weights:
-            layer_grads.append(grads[grad_idx])
-            grad_idx += 1
-        # Compute L2 norm for the layer's gradients
-        # Flatten and concatenate all gradients for a layer before computing the norm
-        flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
-        if tf.size(flat_grads) > 0:
-            norm = tf.norm(flat_grads)
-            gradient_norms.append(norm.numpy())
-        else:
-            gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
+    # 4. Calculate gradient norms for each layer
+    grad_idx = 0
+    for layer in model_deep.layers:
+        if layer.trainable_weights:
+            layer_grads = []
+            for weight in layer.trainable_weights:
+                layer_grads.append(grads[grad_idx])
+                grad_idx += 1
+            # Compute L2 norm for the layer's gradients
+            # Flatten and concatenate all gradients for a layer before computing the norm
+            flat_grads = tf.concat([tf.reshape(g, [-1]) for g in layer_grads if g is not None], axis=0)
+            if tf.size(flat_grads) > 0:
+                norm = tf.norm(flat_grads)
+                gradient_norms.append(norm.numpy())
+            else:
+                gradient_norms.append(0.0) # No gradients for this layer (e.g., if no trainable weights)
 
-# 5. Plot the norms
-plt.figure(figsize=(10, 6))
-plt.bar(layer_names, gradient_norms)
-plt.xlabel("Layer")
-plt.ylabel("Gradient Norm (L2)")
-plt.title("Gradient Norms Across Layers")
-plt.xticks(rotation=45, ha="right")
-plt.tight_layout()
-plt.draw()
+    # 5. Plot the norms
+    plt.figure(figsize=(10, 6))
+    plt.bar(layer_names, gradient_norms)
+    plt.xlabel("Layer")
+    plt.ylabel("Gradient Norm (L2)")
+    plt.title("Gradient Norms Across Layers")
+    plt.xticks(rotation=45, ha="right")
+    plt.tight_layout()
+    plt.draw()
 
-plt.figure(figsize=(10, 6))
-plt.plot(gradient_norms)
-plt.title('Gradient Norm')
-plt.ylabel('Gradient Norm')
-plt.xlabel('Layer')
-plt.draw()
+    plt.figure(figsize=(10, 6))
+    plt.plot(gradient_norms)
+    plt.title('Gradient Norm')
+    plt.ylabel('Gradient Norm')
+    plt.xlabel('Layer')
+    plt.draw()
 
-# Plot training & validation accuracy values
-plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
-plt.plot(history.history['accuracy'], label='Training Accuracy')
-plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
-plt.title('Model Accuracy')
-plt.ylabel('Accuracy')
-plt.xlabel('Epoch')
-plt.legend(loc='lower right')
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(12, 6))
+    plt.subplot(1, 2, 1)
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title('Model Accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(loc='lower right')
 
-# Plot training & validation loss values
-plt.subplot(1, 2, 2)
-plt.plot(history.history['loss'], label='Training Loss')
-plt.plot(history.history['val_loss'], label='Validation Loss')
-plt.title('Model Loss')
-plt.ylabel('Loss')
-plt.xlabel('Epoch')
-plt.legend(loc='upper right')
-plt.show()
+    # Plot training & validation loss values
+    plt.subplot(1, 2, 2)
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title('Model Loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(loc='upper right')
+    plt.show()
