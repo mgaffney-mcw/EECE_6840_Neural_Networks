@@ -24,4 +24,4 @@
 <br />
 
 * TODO: clean up the code so it isn't so repetitive... there's some poor coding practices in there
-* that I hid behind the gui...I hope it's fine for the sake of class 
+  <br />that I hid behind the gui...I hope it's fine for the sake of class 
