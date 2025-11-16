@@ -8,6 +8,7 @@
 from tkinter import Tk, filedialog
 import pandas as pd
 import os
+import numpy as np
 
 # Loading in pORG and iORG dataset and sorting training vs test data
 # iORG and pORG data was preprocessed, ORG signals were extracted, and
@@ -53,6 +54,37 @@ pORG_dataset['Y'] = pORG_dataset['Y'].astype('Int64')
 # Truncate iORG so that it encompasses the same amount of time in sec as pORG. Then interpolate pORG
 # signals such that the time iterations match. (ie: everything is on the exact same time scale as if
 # acquired simultaneously)
+
+# Looking for the start time, end time, and time interval for the pORG data first...
+pORG_startTime = pORG_dataset.columns[3]
+pORG_endTime = pORG_dataset.columns[-1]
+pORG_intTime = pORG_dataset.columns[4] - pORG_dataset.columns[3]
+
+# and now doing same for the iORG data...
+iORG_startTime = iORG_dataset.columns[3]
+iORG_endTime = iORG_dataset.columns[-1]
+iORG_intTime = iORG_dataset.columns[4] - iORG_dataset.columns[3]
+
+# Downsampling the iORG data to match the pORG data
+newiORGX = pORG_dataset.columns[3:-1]
+
+# first lets just extract the iORG signals independent of their cone coords
+iORG_extractedData = iORG_dataset.loc[:, iORG_dataset.columns[3:-1]]
+
+# pre-allocating df to save resampled data
+resampled_iORG = pd.DataFrame(columns = newiORGX, data=np.empty(shape = (len(iORG_extractedData), newiORGX.size)))
+resampled_iORG[:] = np.nan
+
+# This is a dumb way to resample the iORG data but it does work so it's good enough for now
+for index, row in iORG_extractedData.iterrows():
+    currentCone = iORG_extractedData.loc[index,:]
+    f = currentCone.reindex(currentCone.index.union(newiORGX))
+    f2 = f.interpolate('index')
+    f3 = f2.reindex(newiORGX)
+    resampled_iORG.loc[index] = f3
+    del currentCone, f, f2, f3
+
+
 
 # TODO: determine how to best organize iORG and pORG signals for each cone so that it is easy to feed into NN
 
