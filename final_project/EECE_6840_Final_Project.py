@@ -50,7 +50,7 @@ for idx, val in pORG_dataset['X'].items():
 pORG_dataset['X'] = pORG_dataset['X'].astype('Int64')
 pORG_dataset['Y'] = pORG_dataset['Y'].astype('Int64')
 
-# TODO: per 10/22 discussion with RFC -- Match iORG and pORG signals at the time of stimulus delivery (0)
+# per 10/22 discussion with RFC -- Match iORG and pORG signals at the time of stimulus delivery (0)
 # Truncate iORG so that it encompasses the same amount of time in sec as pORG. Then interpolate pORG
 # signals such that the time iterations match. (ie: everything is on the exact same time scale as if
 # acquired simultaneously)
@@ -84,9 +84,11 @@ for index, row in iORG_extractedData.iterrows():
     resampled_iORG.loc[index] = f3
     del currentCone, f, f2, f3
 
-
-
 # TODO: determine how to best organize iORG and pORG signals for each cone so that it is easy to feed into NN
+# Indexing to keep track of cones is going to be a real pain... debating on how to best manage..
+
+
+
 
 # TODO: to CNN or to RNN, that is the question...?
 
