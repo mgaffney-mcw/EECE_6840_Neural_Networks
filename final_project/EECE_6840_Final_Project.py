@@ -86,7 +86,7 @@ for index, row in iORG_extractedData.iterrows():
 
 # TODO: determine how to best organize iORG and pORG signals for each cone so that it is easy to feed into NN
 # Indexing to keep track of cones is going to be a real pain... debating on how to best manage..
-
+common_coords = pd.merge(iORG_dataset, pORG_dataset, on=['X', 'Y'], how='inner')
 
 
 
