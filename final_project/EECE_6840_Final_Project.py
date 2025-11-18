@@ -88,6 +88,9 @@ for index, row in iORG_extractedData.iterrows():
 # Indexing to keep track of cones is going to be a real pain... debating on how to best manage..
 common_coords = pd.merge(iORG_dataset, pORG_dataset, on=['X', 'Y'], how='inner')
 
+# TODO: Transform coords so everything is in the same pixel space
+# looks like the coordinates are from their respective images and not from a common ROI despite the overlap
+# Need to transform the coordinates so that everything is wrt the same pixel coordinates
 
 
 # TODO: to CNN or to RNN, that is the question...?
