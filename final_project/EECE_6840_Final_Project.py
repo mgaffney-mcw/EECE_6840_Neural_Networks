@@ -85,6 +85,9 @@ for index, row in iORG_extractedData.iterrows():
     del currentCone, f, f2, f3
 
 
+# Training/Test split: 1000 cones for training and 6
+
+
 # TODO: to CNN or to RNN, that is the question...?
 
 
