@@ -3,7 +3,9 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
+import pandas as pd
 from sklearn.metrics import mean_squared_error, mean_absolute_error
+from scipy.stats import pearsonr
 
 # Define constants
 NUM_TRAIN_SAMPLES = 10
@@ -22,6 +24,10 @@ y_train = np.random.rand(NUM_TRAIN_SAMPLES, TIMESTEPS, NUM_FEATURES)
 # Generate synthetic test data
 # Shape: (num_test_samples, timesteps, num_features)
 X_test = np.random.rand(NUM_TEST_SAMPLES, TIMESTEPS, NUM_FEATURES)
+
+# Generating "ground truth" data to assess model accuracy
+Y_true = np.random.rand(NUM_TEST_SAMPLES, TIMESTEPS, NUM_FEATURES)
+
 
 # Loop through each of the 10 training samples to create separate figures
 for i in range(NUM_TRAIN_SAMPLES):
@@ -49,7 +55,6 @@ for i in range(NUM_TRAIN_SAMPLES):
     plt.tight_layout()
 
 
-
 # Build the RNN model
 model = keras.Sequential([
     layers.LSTM(64, return_sequences=True, input_shape=(TIMESTEPS, NUM_FEATURES)),
@@ -66,54 +71,51 @@ model.summary()
 print("Training the model...")
 model.fit(X_train, y_train, epochs=20, batch_size=2)
 
-# Loop through each of the 5 test samples and predict
-print("\nPredicting signals for the 5 test samples...")
-for i in range(NUM_TEST_SAMPLES):
-    # Get a single test sample
-    test_sample = X_test[i:i + 1]
+# Y_test = pd.DataFrame(columns = TIMESTEPS, data=np.empty(shape = (len(TIMESTEPS), NUM_TEST_SAMPLES)))
+# Y_test[:] = np.nan
+#
+# # Loop through each of the 5 test samples and predict
+# print("\nPredicting signals for the 5 test samples...")
+# for i in range(NUM_TEST_SAMPLES):
+#     # Get a single test sample
+#     test_sample = X_test[i:i + 1]
+#
+#     # Predict the signal for this test sample
+#     predicted_signal = model.predict(test_sample)
+#
+#     Y_test.loc[i] = predicted_signal
+#
+#     # Print the shape of the predicted output and some values
+#     print(f"\nPrediction for test sample {i + 1}:")
+#     print(f"  Input shape: {test_sample.shape}")
+#     print(f"  Predicted signal shape: {predicted_signal.shape}")
+#     print(f"  First 5 predicted values: {predicted_signal[0, :5, 0]}")
 
-    # Predict the signal for this test sample
-    predicted_signal = model.predict(test_sample)
 
-    # Print the shape of the predicted output and some values
-    print(f"\nPrediction for test sample {i + 1}:")
-    print(f"  Input shape: {test_sample.shape}")
-    print(f"  Predicted signal shape: {predicted_signal.shape}")
-    print(f"  First 5 predicted values: {predicted_signal[0, :5, 0]}")
+# A function to calculate and print the metrics
+def evaluate_predictions(y_true, y_pred):
+    mse = mean_squared_error(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+    mae = mean_absolute_error(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+    rmse = np.sqrt(mse)
+    # Calculate Pearson's correlation coefficient
+    pearson_r, _ = pearsonr(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+
+    print(f"Mean Squared Error (MSE): {mse:.4f}")
+    print(f"Mean Absolute Error (MAE): {mae:.4f}")
+    print(f"Root Mean Squared Error (RMSE): {rmse:.4f}")
+    print(f"Pearson's R: {pearson_r[0]:.4f}")
+
+    return pearson_r, mse, mae, rmse
+
+# Get all test predictions at once for efficiency
+Y_test = model.predict(X_test)
+
+print("Overall test set evaluation:")
+pearson_r, mse, mae, rmse = evaluate_predictions(Y_true, Y_test)
 
 
-# # A function to calculate and print the metrics
-# def evaluate_predictions(y_true, y_pred):
-#     mse = mean_squared_error(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
-#     mae = mean_absolute_error(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
-#     rmse = np.sqrt(mse)
-#
-#     print(f"Mean Squared Error (MSE): {mse:.4f}")
-#     print(f"Mean Absolute Error (MAE): {mae:.4f}")
-#     print(f"Root Mean Squared Error (RMSE): {rmse:.4f}")
-#
-#
-# # Get all test predictions at once for efficiency
-# predicted_signals = model.predict(X_test)
-#
-# print("Overall test set evaluation:")
-# evaluate_predictions(y_test, predicted_signals)
-#
-# # --- Ensure variables are available (assumes previous code has run) ---
-# try:
-#     X_test is not None
-#     y_test is not None # Now includes ground-truth data
-#     model is not None
-#     NUM_TEST_SAMPLES is not None
-# except NameError:
-#     print("Please run the previous code snippets to define necessary variables.")
-#     # Exit or provide placeholder data if necessary
-#     NUM_TEST_SAMPLES = 5
-#     X_test = np.random.rand(NUM_TEST_SAMPLES, 100, 1)
-#     y_test = np.random.rand(NUM_TEST_SAMPLES, 100, 1)
-#     # Model object would also need to be defined
-# # ---------------------------------------------------------------------
-#
+# ---------------------------------------------------------------------
+
 # # Get all test predictions at once for efficiency
 # predicted_signals = model.predict(X_test)
 #
@@ -153,47 +155,47 @@ for i in range(NUM_TEST_SAMPLES):
 #     plt.tight_layout()
 #
 # # ---------------------------------------------------------------------
-#
-# # Get all test predictions at once for efficiency
-# predicted_signals = model.predict(X_test)
-#
-# # Loop through each of the 5 test samples
-# for i in range(NUM_TEST_SAMPLES):
-#     # Select the true and predicted signals for this sample
-#     true_signal = y_test[i, :, 0]
-#     predicted_signal = predicted_signals[i, :, 0]
-#
-#     # Calculate evaluation metrics for the individual sample
-#     mse = mean_squared_error(true_signal, predicted_signal)
-#     mae = mean_absolute_error(true_signal, predicted_signal)
-#     # Calculate Pearson's correlation coefficient
-#     pearson_r, _ = pearsonr(true_signal, predicted_signal)
-#
-#     # Create a new figure with two subplots side-by-side
-#     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-#
-#     # Plot X_test data on the first panel
-#     ax1.plot(X_test[i, :, 0])
-#     ax1.set_title(f'X_test Input - Sample {i + 1}')
-#     ax1.set_xlabel('Timepoints')
-#     ax1.set_ylabel('Value')
-#     ax1.grid(True)
-#
-#     # Plot the predicted signal and the actual signal on the second panel
-#     ax2.plot(predicted_signal, label='Predicted')
-#     ax2.plot(true_signal, label='Actual')
-#     ax2.set_title(
-#         f'Prediction vs. Actual - Sample {i + 1}\n(MSE: {mse:.4f}, MAE: {mae:.4f}, Pearson R: {pearson_r:.4f})')
-#     ax2.set_xlabel('Timepoints')
-#     ax2.set_ylabel('Value')
-#     ax2.legend()
-#     ax2.grid(True)
-#
-#     # Add an overall title for the figure
-#     fig.suptitle(f'Input vs. Prediction for Test Sample {i+1}', fontsize=16)
-#
-#     # Adjust the layout so titles and labels don't overlap
-#     plt.tight_layout()
+
+# Get all test predictions at once for efficiency
+predicted_signals = model.predict(X_test)
+
+# Loop through each of the 5 test samples
+for i in range(NUM_TEST_SAMPLES):
+    # Select the true and predicted signals for this sample
+    true_signal = y_test[i, :, 0]
+    predicted_signal = predicted_signals[i, :, 0]
+
+    # Calculate evaluation metrics for the individual sample
+    mse = mean_squared_error(true_signal, predicted_signal)
+    mae = mean_absolute_error(true_signal, predicted_signal)
+    # Calculate Pearson's correlation coefficient
+    pearson_r, _ = pearsonr(true_signal, predicted_signal)
+
+    # Create a new figure with two subplots side-by-side
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+    # Plot X_test data on the first panel
+    ax1.plot(X_test[i, :, 0])
+    ax1.set_title(f'X_test Input - Sample {i + 1}')
+    ax1.set_xlabel('Timepoints')
+    ax1.set_ylabel('Value')
+    ax1.grid(True)
+
+    # Plot the predicted signal and the actual signal on the second panel
+    ax2.plot(predicted_signal, label='Predicted')
+    ax2.plot(true_signal, label='Actual')
+    ax2.set_title(
+        f'Prediction vs. Actual - Sample {i + 1}\n(MSE: {mse:.4f}, MAE: {mae:.4f}, Pearson R: {pearson_r:.4f})')
+    ax2.set_xlabel('Timepoints')
+    ax2.set_ylabel('Value')
+    ax2.legend()
+    ax2.grid(True)
+
+    # Add an overall title for the figure
+    fig.suptitle(f'Input vs. Prediction for Test Sample {i+1}', fontsize=16)
+
+    # Adjust the layout so titles and labels don't overlap
+    plt.tight_layout()
 
 
 # Loop through each of the 5 test samples
