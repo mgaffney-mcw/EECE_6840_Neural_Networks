@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
 # Define constants
 NUM_TRAIN_SAMPLES = 10
@@ -81,7 +82,118 @@ for i in range(NUM_TEST_SAMPLES):
     print(f"  First 5 predicted values: {predicted_signal[0, :5, 0]}")
 
 
-
+# # A function to calculate and print the metrics
+# def evaluate_predictions(y_true, y_pred):
+#     mse = mean_squared_error(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+#     mae = mean_absolute_error(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+#     rmse = np.sqrt(mse)
+#
+#     print(f"Mean Squared Error (MSE): {mse:.4f}")
+#     print(f"Mean Absolute Error (MAE): {mae:.4f}")
+#     print(f"Root Mean Squared Error (RMSE): {rmse:.4f}")
+#
+#
+# # Get all test predictions at once for efficiency
+# predicted_signals = model.predict(X_test)
+#
+# print("Overall test set evaluation:")
+# evaluate_predictions(y_test, predicted_signals)
+#
+# # --- Ensure variables are available (assumes previous code has run) ---
+# try:
+#     X_test is not None
+#     y_test is not None # Now includes ground-truth data
+#     model is not None
+#     NUM_TEST_SAMPLES is not None
+# except NameError:
+#     print("Please run the previous code snippets to define necessary variables.")
+#     # Exit or provide placeholder data if necessary
+#     NUM_TEST_SAMPLES = 5
+#     X_test = np.random.rand(NUM_TEST_SAMPLES, 100, 1)
+#     y_test = np.random.rand(NUM_TEST_SAMPLES, 100, 1)
+#     # Model object would also need to be defined
+# # ---------------------------------------------------------------------
+#
+# # Get all test predictions at once for efficiency
+# predicted_signals = model.predict(X_test)
+#
+# # Loop through each of the 5 test samples
+# for i in range(NUM_TEST_SAMPLES):
+#     # Select the true and predicted signals for this sample
+#     true_signal = y_test[i, :, 0]
+#     predicted_signal = predicted_signals[i, :, 0]
+#
+#     # Calculate metrics for the individual sample
+#     mse = mean_squared_error(true_signal, predicted_signal)
+#     mae = mean_absolute_error(true_signal, predicted_signal)
+#
+#     # Create a new figure with two subplots side-by-side
+#     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+#
+#     # Plot X_test data on the first panel
+#     ax1.plot(X_test[i, :, 0])
+#     ax1.set_title(f'X_test Input - Sample {i + 1}')
+#     ax1.set_xlabel('Timepoints')
+#     ax1.set_ylabel('Value')
+#     ax1.grid(True)
+#
+#     # Plot the predicted signal and the actual signal on the second panel
+#     ax2.plot(predicted_signal, label='Predicted')
+#     ax2.plot(true_signal, label='Actual')
+#     ax2.set_title(f'Prediction vs. Actual - Sample {i+1}\n(MSE: {mse:.4f}, MAE: {mae:.4f})')
+#     ax2.set_xlabel('Timepoints')
+#     ax2.set_ylabel('Value')
+#     ax2.legend()
+#     ax2.grid(True)
+#
+#     # Add an overall title for the figure
+#     fig.suptitle(f'Input vs. Prediction for Test Sample {i+1}', fontsize=16)
+#
+#     # Adjust the layout so titles and labels don't overlap
+#     plt.tight_layout()
+#
+# # ---------------------------------------------------------------------
+#
+# # Get all test predictions at once for efficiency
+# predicted_signals = model.predict(X_test)
+#
+# # Loop through each of the 5 test samples
+# for i in range(NUM_TEST_SAMPLES):
+#     # Select the true and predicted signals for this sample
+#     true_signal = y_test[i, :, 0]
+#     predicted_signal = predicted_signals[i, :, 0]
+#
+#     # Calculate evaluation metrics for the individual sample
+#     mse = mean_squared_error(true_signal, predicted_signal)
+#     mae = mean_absolute_error(true_signal, predicted_signal)
+#     # Calculate Pearson's correlation coefficient
+#     pearson_r, _ = pearsonr(true_signal, predicted_signal)
+#
+#     # Create a new figure with two subplots side-by-side
+#     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+#
+#     # Plot X_test data on the first panel
+#     ax1.plot(X_test[i, :, 0])
+#     ax1.set_title(f'X_test Input - Sample {i + 1}')
+#     ax1.set_xlabel('Timepoints')
+#     ax1.set_ylabel('Value')
+#     ax1.grid(True)
+#
+#     # Plot the predicted signal and the actual signal on the second panel
+#     ax2.plot(predicted_signal, label='Predicted')
+#     ax2.plot(true_signal, label='Actual')
+#     ax2.set_title(
+#         f'Prediction vs. Actual - Sample {i + 1}\n(MSE: {mse:.4f}, MAE: {mae:.4f}, Pearson R: {pearson_r:.4f})')
+#     ax2.set_xlabel('Timepoints')
+#     ax2.set_ylabel('Value')
+#     ax2.legend()
+#     ax2.grid(True)
+#
+#     # Add an overall title for the figure
+#     fig.suptitle(f'Input vs. Prediction for Test Sample {i+1}', fontsize=16)
+#
+#     # Adjust the layout so titles and labels don't overlap
+#     plt.tight_layout()
 
 
 # Loop through each of the 5 test samples
