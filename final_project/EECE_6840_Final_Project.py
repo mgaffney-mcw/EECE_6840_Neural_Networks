@@ -3,12 +3,16 @@
 # Created by Mina Gaffney
 
 # importing things
-#import tensorflow as tf
-#import matplotlib.pyplot as plt
 from tkinter import Tk, filedialog
 import pandas as pd
 import os
 import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+from scipy.stats import pearsonr
 
 # Loading in pORG and iORG dataset and sorting training vs test data
 # iORG and pORG data was preprocessed, ORG signals were extracted, and
@@ -86,11 +90,68 @@ for index, row in iORG_extractedData.iterrows():
 
 
 # Training/Test split: 1000 cones for training and 614 cones
-training_data = 
+training_input = resampled_iORG.sample(n=1000, random_state = 42)
+label_input = pORG_dataset.sample(n=1000, random_state = 42)
+
+test_input = resampled_iORG.drop(training_input.index)
+ground_truth_test = pORG_dataset.drop(pORG_dataset.index)
 
 # TODO: build RNN
+# reformating things so that TF will accept the training data...
+# Expected input must be either a tensor or a numpy array with
+# the dimensions of (samples, timestamps, features)
+# for this data that would ne # cones, length of time vector, and 1
+
+# casting to numpy array and reshaping...
+train_array = training_input.values
+training_data = train_array.reshape((train_array.shape[0], train_array.shape[1], 1))
+
+label_array = label_input.values
+labels = label_array.reshape((label_array.shape[0], label_array.shape[1], 1))
+
+test_array = test_input.values
+test_data = test_array.reshape((test_array.shape[0], test_array.shape[1], 1))
+
+truth_array = ground_truth_test.values
+ground_truth = truth_array.reshape((truth_array.shape[0], truth_array.shape[1], 1))
+
+# Build the RNN model
+model = keras.Sequential([
+    layers.LSTM(64, return_sequences=True, input_shape=(training_input.shape[1], 1)),
+    layers.Dense(1)
+])
+
+# Compile the model
+model.compile(optimizer='adam', loss='mean_squared_error')
+
+# Print a summary of the model architecture
+model.summary()
+
+# Train the model
+print("Training the model...")
+model.fit(training_data, labels, epochs=50, batch_size=2)
 
 
+# A function to calculate and print the metrics
+def evaluate_predictions(y_true, y_pred):
+    mse = mean_squared_error(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+    mae = mean_absolute_error(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+    rmse = np.sqrt(mse)
+    # Calculate Pearson's correlation coefficient
+    pearson_r, _ = pearsonr(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+
+    print(f"Mean Squared Error (MSE): {mse:.4f}")
+    print(f"Mean Absolute Error (MAE): {mae:.4f}")
+    print(f"Root Mean Squared Error (RMSE): {rmse:.4f}")
+    print(f"Pearson's R: {pearson_r[0]:.4f}")
+
+    return pearson_r, mse, mae, rmse
+
+# Get all test predictions at once for efficiency
+Y_test = model.predict(X_test)
+
+print("Overall test set evaluation:")
+pearson_r, mse, mae, rmse = evaluate_predictions(Y_true, Y_test)
 
 
 # First loading in the data:
