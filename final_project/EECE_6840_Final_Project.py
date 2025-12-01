@@ -95,7 +95,7 @@ training_input = resampled_iORG.sample(n=1000, random_state = 42)
 label_input = pORG_extractedData.sample(n=1000, random_state = 42)
 
 test_input = resampled_iORG.drop(training_input.index)
-ground_truth_test = pORG_extractedData.drop(pORG_dataset.index)
+ground_truth_test = pORG_extractedData.drop(label_input.index)
 
 # TODO: build RNN
 # reformating things so that TF will accept the training data...
@@ -122,6 +122,7 @@ ground_truth = truth_array.reshape((truth_array.shape[0], truth_array.shape[1], 
 
 # Build the RNN model
 model = keras.Sequential([
+    layers.LSTM(64, return_sequences=True, input_shape=(training_input.shape[1], 1)),
     layers.LSTM(64, return_sequences=True, input_shape=(training_input.shape[1], 1)),
     layers.Dense(1)
 ])
@@ -150,13 +151,13 @@ def evaluate_predictions(y_true, y_pred):
     print(f"Root Mean Squared Error (RMSE): {rmse:.4f}")
     #print(f"Pearson's R: {pearson_r[0]:.4f}")
 
-    return pearson_r, mse, mae, rmse
+    return mse, mae, rmse
 
 # Get all test predictions at once for efficiency
 Y_test = model.predict(test_data)
 
 print("Overall test set evaluation:")
-pearson_r, mse, mae, rmse = evaluate_predictions(ground_truth, Y_test)
+mse, mae, rmse = evaluate_predictions(ground_truth, Y_test)
 
 
 # First loading in the data:
