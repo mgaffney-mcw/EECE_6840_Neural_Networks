@@ -74,6 +74,7 @@ newiORGX = pORG_dataset.columns[3:-1]
 
 # first lets just extract the iORG signals independent of their cone coords
 iORG_extractedData = iORG_dataset.loc[:, iORG_dataset.columns[3:-1]]
+pORG_extractedData = pORG_dataset.loc[:, pORG_dataset.columns[3:-1]]
 
 # pre-allocating df to save resampled data
 resampled_iORG = pd.DataFrame(columns = newiORGX, data=np.empty(shape = (len(iORG_extractedData), newiORGX.size)))
@@ -91,10 +92,10 @@ for index, row in iORG_extractedData.iterrows():
 
 # Training/Test split: 1000 cones for training and 614 cones
 training_input = resampled_iORG.sample(n=1000, random_state = 42)
-label_input = pORG_dataset.sample(n=1000, random_state = 42)
+label_input = pORG_extractedData.sample(n=1000, random_state = 42)
 
 test_input = resampled_iORG.drop(training_input.index)
-ground_truth_test = pORG_dataset.drop(pORG_dataset.index)
+ground_truth_test = pORG_extractedData.drop(pORG_dataset.index)
 
 # TODO: build RNN
 # reformating things so that TF will accept the training data...
@@ -104,15 +105,19 @@ ground_truth_test = pORG_dataset.drop(pORG_dataset.index)
 
 # casting to numpy array and reshaping...
 train_array = training_input.values
+train_array[np.isnan(train_array)]=0
 training_data = train_array.reshape((train_array.shape[0], train_array.shape[1], 1))
 
 label_array = label_input.values
+label_array[np.isnan(label_array)]=0
 labels = label_array.reshape((label_array.shape[0], label_array.shape[1], 1))
 
 test_array = test_input.values
+test_array[np.isnan(test_array)]=0
 test_data = test_array.reshape((test_array.shape[0], test_array.shape[1], 1))
 
 truth_array = ground_truth_test.values
+truth_array[np.isnan(truth_array)]=0
 ground_truth = truth_array.reshape((truth_array.shape[0], truth_array.shape[1], 1))
 
 # Build the RNN model
@@ -138,20 +143,20 @@ def evaluate_predictions(y_true, y_pred):
     mae = mean_absolute_error(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
     rmse = np.sqrt(mse)
     # Calculate Pearson's correlation coefficient
-    pearson_r, _ = pearsonr(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+    #pearson_r, _ = pearsonr(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
 
     print(f"Mean Squared Error (MSE): {mse:.4f}")
     print(f"Mean Absolute Error (MAE): {mae:.4f}")
     print(f"Root Mean Squared Error (RMSE): {rmse:.4f}")
-    print(f"Pearson's R: {pearson_r[0]:.4f}")
+    #print(f"Pearson's R: {pearson_r[0]:.4f}")
 
     return pearson_r, mse, mae, rmse
 
 # Get all test predictions at once for efficiency
-Y_test = model.predict(X_test)
+Y_test = model.predict(test_data)
 
 print("Overall test set evaluation:")
-pearson_r, mse, mae, rmse = evaluate_predictions(Y_true, Y_test)
+pearson_r, mse, mae, rmse = evaluate_predictions(ground_truth, Y_test)
 
 
 # First loading in the data:
