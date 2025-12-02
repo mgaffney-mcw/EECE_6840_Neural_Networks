@@ -7,10 +7,12 @@ from tkinter import Tk, filedialog
 import pandas as pd
 import os
 import numpy as np
-import tensorflow as tf
+#import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+#from matplotlib import use
 import matplotlib.pyplot as plt
+#use("Qt5Agg")
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from scipy.stats import pearsonr
 
@@ -97,6 +99,36 @@ label_input = pORG_extractedData.sample(n=1000, random_state = 42)
 test_input = resampled_iORG.drop(training_input.index)
 ground_truth_test = pORG_extractedData.drop(label_input.index)
 
+# Plot a subset of the training and the label input
+training_plot = training_input.sample(n=10, random_state = 44)
+label_plot = label_input.sample(n=10, random_state = 44)
+
+# for ii in range(10):
+#     # Create a new figure with two subplots side-by-side (1 row, 2 columns)
+#     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+#
+#     # Plot X_train data on the first panel
+#     ax1.plot(training_plot.iloc[ii])
+#     ax1.set_title(f'Training - Sample {ii + 1}')
+#     ax1.set_xlabel('Timepoints')
+#     ax1.set_ylabel('Value')
+#     ax1.grid(True)
+#
+#  # Plot y_train data on the second panel
+#     ax2.plot(label_plot.iloc[ii])
+#     ax2.set_title(f'Label - Sample {ii+1}')
+#     ax2.set_xlabel('Timepoints')
+#     ax2.set_ylabel('Value')
+#     ax2.grid(True)
+#
+#     # Add an overall title for the figure
+#     fig.suptitle(f'Data Comparison for Sample {ii+1}', fontsize=16)
+#
+#     # Adjust the layout so titles and labels don't overlap
+#     plt.tight_layout()
+#
+# plt.show()
+
 # TODO: build RNN
 # reformating things so that TF will accept the training data...
 # Expected input must be either a tensor or a numpy array with
@@ -120,22 +152,35 @@ truth_array = ground_truth_test.values
 truth_array[np.isnan(truth_array)]=0
 ground_truth = truth_array.reshape((truth_array.shape[0], truth_array.shape[1], 1))
 
+
 # Build the RNN model
 model = keras.Sequential([
-    layers.LSTM(64, return_sequences=True, input_shape=(training_input.shape[1], 1)),
-    layers.LSTM(64, return_sequences=True, input_shape=(training_input.shape[1], 1)),
+    layers.GRU(64, return_sequences=True, input_shape=(training_input.shape[1], 1)),
     layers.Dense(1)
 ])
 
 # Compile the model
-model.compile(optimizer='adam', loss='mean_squared_error')
+model.compile(optimizer='adam', loss='mean_absolute_error', metrics=["accuracy"])
 
 # Print a summary of the model architecture
 model.summary()
 
 # Train the model
 print("Training the model...")
-model.fit(training_data, labels, epochs=50, batch_size=2)
+history = model.fit(training_data, labels, epochs=50, batch_size=2)
+
+train_loss = history.history['loss']
+epochs = range(1, len(train_loss) + 1)
+
+
+#Plot the loss values
+plt.figure(figsize=(10, 6))
+plt.plot(epochs, train_loss, 'r', label='Training Loss')
+plt.title('Training Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.grid(True)
 
 
 # A function to calculate and print the metrics
@@ -159,10 +204,51 @@ Y_test = model.predict(test_data)
 print("Overall test set evaluation:")
 mse, mae, rmse = evaluate_predictions(ground_truth, Y_test)
 
+# Calculate Pearson's correlation coefficient
 
-# First loading in the data:
-dataset=pd.read_excel(fName, sheet_name=['AOIP','OCVL'])
-AOIP_df=dataset['AOIP']
-OCVL_df=dataset['OCVL']
+#pearson_r, _ = pearsonr(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
+# for i, row in truth_array
+#     pearson_r, _ = pearsonr(truth_array[i,:], )
+
+# TODO: convert Y_test into an array for visualization
+
+Pred_outputs = np.squeeze(Y_test)
+resaved_pred = pd.DataFrame(columns = newiORGX, data=Pred_outputs)
+
+# Plot a subset of the training and the label input
+test_plot = test_input.sample(n=10, random_state = 50)
+pred_plot = resaved_pred.sample(n=10, random_state = 50)
+truth_plot = ground_truth_test.sample(n=10, random_state = 50)
+
+for ii in range(10):
+    # Create a new figure with two subplots side-by-side (1 row, 2 columns)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+
+    # Plot X_train data on the first panel
+    ax1.plot(test_plot.iloc[ii])
+    ax1.set_title(f'Test - Sample {ii + 1}')
+    ax1.set_xlabel('Time from stimulus onset (sec)')
+    ax1.set_ylabel('Value')
+    ax1.grid(True)
+
+ # Plot y_train data on the second panel
+    ax2.plot(pred_plot.iloc[ii], label='Model Prediction')
+    ax2.plot(truth_plot.iloc[ii], label = 'Ground Truth')
+    ax2.set_title(f'Predicted - Sample {ii+1}')
+    ax2.set_xlabel('Time from stimulus onset (sec)')
+    ax2.set_ylabel('Value')
+    ax2.legend()
+    ax2.grid(True)
+
+    # Add an overall title for the figure
+    fig.suptitle(f'Model Comparison for Sample {ii+1}', fontsize=16)
+
+    # Adjust the layout so titles and labels don't overlap
+    plt.tight_layout()
+
+plt.show()
+
+
+
 
 
