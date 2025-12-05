@@ -155,12 +155,12 @@ ground_truth = truth_array.reshape((truth_array.shape[0], truth_array.shape[1], 
 
 # Build the RNN model
 model = keras.Sequential([
-    layers.GRU(64, return_sequences=True, input_shape=(training_input.shape[1], 1)),
+    layers.LSTM(64, return_sequences=True, input_shape=(training_input.shape[1], 1)),
     layers.Dense(1)
 ])
 
 # Compile the model
-model.compile(optimizer='adam', loss='mean_absolute_error', metrics=["accuracy"])
+model.compile(optimizer='adam', loss='mean_squared_error', metrics=["accuracy"])
 
 # Print a summary of the model architecture
 model.summary()
@@ -181,7 +181,7 @@ plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
 plt.grid(True)
-
+plt.show(block=False)
 
 # A function to calculate and print the metrics
 def evaluate_predictions(y_true, y_pred):
@@ -206,9 +206,6 @@ mse, mae, rmse = evaluate_predictions(ground_truth, Y_test)
 
 # Calculate Pearson's correlation coefficient
 
-#pearson_r, _ = pearsonr(y_true.reshape(-1, 1), y_pred.reshape(-1, 1))
-# for i, row in truth_array
-#     pearson_r, _ = pearsonr(truth_array[i,:], )
 
 # TODO: convert Y_test into an array for visualization
 
@@ -220,35 +217,110 @@ test_plot = test_input.sample(n=10, random_state = 50)
 pred_plot = resaved_pred.sample(n=10, random_state = 50)
 truth_plot = ground_truth_test.sample(n=10, random_state = 50)
 
-for ii in range(10):
-    # Create a new figure with two subplots side-by-side (1 row, 2 columns)
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
-    # Plot X_train data on the first panel
-    ax1.plot(test_plot.iloc[ii])
-    ax1.set_title(f'Test - Sample {ii + 1}')
-    ax1.set_xlabel('Time from stimulus onset (sec)')
-    ax1.set_ylabel('Value')
-    ax1.grid(True)
+test_pearsons = pd.DataFrame(columns = ["pearsonsR", "p_val"], data=np.empty(shape = (len(resaved_pred), 2)))
+test_pearsons[:] = np.nan
 
- # Plot y_train data on the second panel
-    ax2.plot(pred_plot.iloc[ii], label='Model Prediction')
-    ax2.plot(truth_plot.iloc[ii], label = 'Ground Truth')
-    ax2.set_title(f'Predicted - Sample {ii+1}')
-    ax2.set_xlabel('Time from stimulus onset (sec)')
-    ax2.set_ylabel('Value')
-    ax2.legend()
-    ax2.grid(True)
+for iii in range(len(resaved_pred)):
+     pearson_r, p_val = pearsonr(resaved_pred.iloc[iii],ground_truth_test.iloc[iii])
+     test_pearsons.loc[iii, 'pearsonsR'] = pearson_r
+     test_pearsons.loc[iii, 'p_val'] = p_val
 
-    # Add an overall title for the figure
-    fig.suptitle(f'Model Comparison for Sample {ii+1}', fontsize=16)
-
-    # Adjust the layout so titles and labels don't overlap
-    plt.tight_layout()
-
+plt.figure(figsize=(10, 10))
+test_pearsons['pearsonsR'].hist(bins = 10)
+plt.title('Histogram of pearsons R values')
 plt.show()
 
+print("Individual cell accuracy:")
+print(f"Pearsons R min: {test_pearsons['pearsonsR'].min():.4f}")
+print(f"Pearsons R median: {test_pearsons['pearsonsR'].median():.4f}")
+print(f"Pearsons R max: {test_pearsons['pearsonsR'].max():.4f}")
 
+min_loc = test_pearsons['pearsonsR'].idxmin()
+max_loc = test_pearsons['pearsonsR'].idxmax()
+
+# # plotting the cone signals with the highest and lowest correlations
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+#
+# # Plot X_train data on the first panel
+# ax1.plot(test_plot.loc[min_loc])
+# ax1.set_title(f'Test sample')
+# ax1.set_xlabel('Time from stimulus onset (sec)')
+# ax1.set_ylabel('Value')
+# ax1.grid(True)
+#
+# # Plot y_train data on the second panel
+# ax2.plot(pred_plot.loc[min_loc], label='Model Prediction')
+# ax2.plot(truth_plot.loc[min_loc], label = 'Ground Truth')
+# ax2.set_title(f'Predicted - Sample {ii+1}')
+# ax2.set_xlabel('Time from stimulus onset (sec)')
+# ax2.set_ylabel('Value')
+# ax2.legend()
+# ax2.grid(True)
+#
+# # Add an overall title for the figure
+# fig.suptitle(f'Model Comparison for min Pearson R', fontsize=16)
+#
+# # Adjust the layout so titles and labels don't overlap
+# plt.tight_layout()
+#
+# # plotting the cone signals with the highest and lowest correlations
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+#
+# # Plot X_train data on the first panel
+# ax1.plot(test_plot.loc[max_loc])
+# ax1.set_title(f'Test sample')
+# ax1.set_xlabel('Time from stimulus onset (sec)')
+# ax1.set_ylabel('Value')
+# ax1.grid(True)
+#
+# # Plot y_train data on the second panel
+# ax2.plot(pred_plot.loc[max_loc], label='Model Prediction')
+# ax2.plot(truth_plot.loc[max_loc], label = 'Ground Truth')
+# ax2.set_title(f'Predicted - Sample {ii+1}')
+# ax2.set_xlabel('Time from stimulus onset (sec)')
+# ax2.set_ylabel('Value')
+# ax2.legend()
+# ax2.grid(True)
+#
+# # Add an overall title for the figure
+# fig.suptitle(f'Model Comparison for max Pearson R', fontsize=16)
+#
+# # Adjust the layout so titles and labels don't overlap
+# plt.tight_layout()
+#
+#
+#
+#
+# for ii in range(10):
+#     # Create a new figure with two subplots side-by-side (1 row, 2 columns)
+#     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+#
+#     # Plot X_train data on the first panel
+#     ax1.plot(test_plot.iloc[ii])
+#     ax1.set_title(f'Test - Sample {ii + 1}')
+#     ax1.set_xlabel('Time from stimulus onset (sec)')
+#     ax1.set_ylabel('Value')
+#     ax1.grid(True)
+#
+#  # Plot y_train data on the second panel
+#     ax2.plot(pred_plot.iloc[ii], label='Model Prediction')
+#     ax2.plot(truth_plot.iloc[ii], label = 'Ground Truth')
+#     ax2.set_title(f'Predicted - Sample {ii+1}')
+#     ax2.set_xlabel('Time from stimulus onset (sec)')
+#     ax2.set_ylabel('Value')
+#     ax2.legend()
+#     ax2.grid(True)
+#
+#     # Add an overall title for the figure
+#     fig.suptitle(f'Model Comparison for Sample {ii+1}', fontsize=16)
+#
+#     # Adjust the layout so titles and labels don't overlap
+#     plt.tight_layout()
+#
+# plt.show()
+#
+#
 
 
 
